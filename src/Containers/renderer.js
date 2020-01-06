@@ -3,12 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { StereoEffect } from "three/examples/jsm/effects/StereoEffect";
 import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader";
-
-/* import { GCodeLoader } from 'three/examples/jsm/loaders/GCodeLoader';
-import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
- */
+import { GCodeParser, GCodeRenderer } from "../lib";
 
 // Models for cnc
 import baseShaftModel from "../assets/models/EjesBase.3mf";
@@ -34,6 +29,7 @@ export default class HomePage extends Component {
     this.addCustomSceneObjects();
     this.startAnimationLoop();
     window.addEventListener("resize", this.handleWindowResize);
+    this.onLoadGCode();
   }
 
   componentWillUnmount() {
@@ -81,16 +77,13 @@ export default class HomePage extends Component {
    * like light, cnc model, etc..
    */
   addCustomSceneObjects = () => {
-    
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4)
 	  ambientLight.position.set(0, 0, -100);
 	  this.scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0xffffff, "#dd8e4c", 0.3);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, "#dd8e4c", 0.38);
     hemiLight.position.set(0, 200, 0);
     this.scene.add(hemiLight);
-    const hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 10);
-    this.scene.add(hemiLightHelper);
     
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.color.setHSL(0.1, 1, 0.95);
@@ -107,8 +100,10 @@ export default class HomePage extends Component {
     dirLight.shadow.camera.far = 500;
     dirLight.shadow.bias = -0.0001;
     this.scene.add(dirLight);
-    const dirLightHeper = new THREE.DirectionalLightHelper(dirLight, 10);
-    this.scene.add(dirLightHeper);
+
+    //The X axis is red. The Y axis is green. The Z axis is blue.
+    const axesHelper = new THREE.AxesHelper(1000);
+    this.scene.add( axesHelper );
 
     let ground = new THREE.Mesh(
       new THREE.PlaneBufferGeometry(5000, 5000),
@@ -186,6 +181,18 @@ export default class HomePage extends Component {
     // .updateProjectionMatrix for the changes to take effect.
     this.camera.updateProjectionMatrix();
   };
+  
+  onLoadGCode = (gcode) => {
+    gcode = "G17 G20 G90 G94 G54\nG0 Z0.25\nX-0.5 Y0.\nZ0.1\nG01 Z0. F5.\nG02 X0. Y0.5 I0.5 J0. F2.5\nX0.5 Y0. I0. J-0.5\nX0. Y-0.5 I-0.5 J0.\nX-0.5 Y0. I0. J0.5\nG01 Z0.1 F5.\nG00 X0. Y0. Z0.25\n"
+    const gp = new GCodeParser();
+    const gm = gp.parse(gcode);
+    const gr = new GCodeRenderer();
+    
+    const gcodeObj = gr.render(gm);
+    gcodeObj.scale.set(100,100,100);
+    gcodeObj.rotateOnAxis(new THREE.Vector3(1, 0, 0).normalize(), -Math.PI / 2);
+    this.scene.add(gcodeObj);
+  }
 
   render() {
     return (

@@ -1,6 +1,6 @@
 import React from 'react';
 import logo from './logo.svg';
-import HomePage from './Containers/homePage';
+import Renderer from './Containers/renderer';
 
 function App() {
 
@@ -27,7 +27,7 @@ function App() {
 
   return (
     <div className="App">
-      <HomePage isMobile={!!isMobile.any()} ></HomePage>
+      <Renderer isMobile={!!isMobile.any()} ></Renderer>
     </div>
   );
 }
