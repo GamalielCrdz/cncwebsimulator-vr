@@ -1,6 +1,8 @@
 import React from 'react';
 import logo from './logo.svg';
+import './App.css';
 import Renderer from './Containers/renderer';
+import Editor from './Containers/editor';
 
 function App() {
 
@@ -27,6 +29,7 @@ function App() {
 
   return (
     <div className="App">
+      <Editor />
       <Renderer isMobile={!!isMobile.any()} ></Renderer>
     </div>
   );

@@ -1,9 +1,21 @@
 import React from 'react'
+import { Affix, Button } from 'antd';
 
-export const editor = () => {
+export default () => {
   return (
-    <div>
-      aaaaaaa
+    <div style={{ position: "absolute", color: "red" }}>
+      <Affix offsetTop={10}>
+          <Button
+            type="primary"
+            onClick={() => {
+              this.setState({
+                top: 10 + 10,
+              });
+            }}
+          >
+            Affix top
+          </Button>
+        </Affix>
     </div>
   )
 }
