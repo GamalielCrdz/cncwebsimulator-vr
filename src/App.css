@@ -1,1 +1,7 @@
 @import '~antd/dist/antd.css';
+
+.current-line {
+  background-color: red;
+  color: yellow;
+  position: absolute;
+}
