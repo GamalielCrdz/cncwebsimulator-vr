@@ -24,6 +24,14 @@ export default class HomePage extends Component {
     this.effect = null;
     this.currentgcodeObject = null;
     this.gCodeRenderer = null;
+    this.baseShaft = null;
+    this.xAxis = null;
+    this.yAxis = null;
+    this.zAxis = null;
+    this.body = null;
+    this.nut = null;
+    this.targetPoint = new THREE.Vector3(0, 0, 0);
+
     this.renderElement = React.createRef();
     this.state = {
       index: 0,
@@ -127,12 +135,12 @@ export default class HomePage extends Component {
 
     // add cnc model
     const models = [
-      baseShaftModel,
-      xAxisModel,
-      yAxisModel,
-      zAxisModel,
-      bodyModel,
-      nutModel
+      { model: baseShaftModel, value: 'baseShaft'},
+      { model: xAxisModel, value: 'xAxis'},
+      { model: yAxisModel, value: 'yAxis'},
+      { model: zAxisModel, value: 'zAxis'},
+      { model: bodyModel, value: 'body'},
+      { model: nutModel, value: 'nut' }
     ];
     const cncModel = new THREE.Group();
     const threeMFLoader = new ThreeMFLoader();
@@ -144,9 +152,9 @@ export default class HomePage extends Component {
       flatShading: true
     });
 
-    for (const model of models) {
-      threeMFLoader.load(model, object => {
-        object.traverse(function(child) {
+    for (const modelObject of models) {
+      threeMFLoader.load(modelObject.model, object => {
+        object.traverse((child) => {
           child.children.forEach(function(item, index) {
             item.material = CNCMaterial;
           });
@@ -156,7 +164,16 @@ export default class HomePage extends Component {
           new THREE.Vector3(1, 0, 0).normalize(),
           -Math.PI / 2
         );
+
+        // for some reason this models don't load correctly and need to set the position
+        if (modelObject.value === 'nut' || modelObject.value === 'body') {
+          object.position.set(0, 0, 35);
+        }
+
         cncModel.add(object);
+        
+        // assign the object to the correspondent this variable
+        this[modelObject.value] = object;
       });
     }
 
@@ -203,6 +220,20 @@ export default class HomePage extends Component {
     this.camera.updateProjectionMatrix();
   };
 
+  handleCNCModelMotion = () => {
+    this.xAxis.position.x = this.targetPoint.x; 
+    this.zAxis.position.x = this.targetPoint.x;
+    this.body.position.x = this.targetPoint.x;
+    this.nut.position.x = this.targetPoint.x;
+
+    this.zAxis.position.y = this.targetPoint.y;
+    this.body.position.y = this.targetPoint.y;
+    this.nut.position.y = this.targetPoint.y;
+ 
+    this.zAxis = this.targetPoint.z -35;
+
+  }
+
   onLoadGCode = (gcode = "") => {
     //gcode = "G17 G20 G90 G94 G54\nG0 Z0.25\nX-0.5 Y0.\nZ0.1\nG01 Z0. F5.\nG02 X0. Y0.5 I0.5 J0. F2.5\nX0.5 Y0. I0. J-0.5\nX0. Y-0.5 I-0.5 J0.\nX-0.5 Y0. I0. J0.5\nG01 Z0.1 F5.\nG00 X0. Y0. Z0.25\n"
     const gp = new GCodeParser();
@@ -248,7 +279,7 @@ export default class HomePage extends Component {
           style={{ minHeight: 650, height: "100%", width: "100%" }}
           ref={this.renderElement}
         />
-        <Controls sliderValue={} onPlay={this.handlePlay} onChangeSlider={this.handleSlider} />
+        <Controls sliderValue={this.state.sliderValue} onPlay={this.handlePlay} onChangeSlider={this.handleSlider} />
       </div>
     );
   }
