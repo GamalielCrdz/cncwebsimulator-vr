@@ -34,8 +34,8 @@ export default class HomePage extends Component {
 
     this.renderElement = React.createRef();
     this.state = {
-      index: 0,
-    }
+      index: 0
+    };
   }
 
   componentDidMount() {
@@ -135,12 +135,12 @@ export default class HomePage extends Component {
 
     // add cnc model
     const models = [
-      { model: baseShaftModel, value: 'baseShaft'},
-      { model: xAxisModel, value: 'xAxis'},
-      { model: yAxisModel, value: 'yAxis'},
-      { model: zAxisModel, value: 'zAxis'},
-      { model: bodyModel, value: 'body'},
-      { model: nutModel, value: 'nut' }
+      { model: baseShaftModel, value: "baseShaft" },
+      { model: xAxisModel, value: "xAxis" },
+      { model: yAxisModel, value: "yAxis" },  
+      { model: zAxisModel, value: "zAxis" },
+      { model: bodyModel, value: "body" },
+      { model: nutModel, value: "nut" }
     ];
     const cncModel = new THREE.Group();
     const threeMFLoader = new ThreeMFLoader();
@@ -154,7 +154,7 @@ export default class HomePage extends Component {
 
     for (const modelObject of models) {
       threeMFLoader.load(modelObject.model, object => {
-        object.traverse((child) => {
+        object.traverse(child => {
           child.children.forEach(function(item, index) {
             item.material = CNCMaterial;
           });
@@ -166,12 +166,20 @@ export default class HomePage extends Component {
         );
 
         // for some reason this models don't load correctly and need to set the position
-        if (modelObject.value === 'nut' || modelObject.value === 'body') {
-          object.position.set(0, 0, 35);
+        if (modelObject.value === "nut" || modelObject.value === "body") {
+          object.position.set(0, -35, 35);
+        }
+
+        if (modelObject.value === 'zAxis') {
+            object.position.y = -35;
+        }
+
+        if (modelObject.value === 'yAxis') {
+          object.position.z = 35;
         }
 
         cncModel.add(object);
-        
+
         // assign the object to the correspondent this variable
         this[modelObject.value] = object;
       });
@@ -183,13 +191,29 @@ export default class HomePage extends Component {
   startAnimationLoop = () => {
     if (
       this.gCodeRenderer &&
-      this.gCodeRenderer.index <= this.gCodeRenderer.viewModels.length-1
+      this.gCodeRenderer.index <= this.gCodeRenderer.viewModels.length - 1
     ) {
-      if (this.gCodeRenderer.index === this.gCodeRenderer.viewModels.length-1) {
-
+      if (
+        this.gCodeRenderer.index ===
+        this.gCodeRenderer.viewModels.length - 1
+      ) {
       } else {
         this.gCodeRenderer.setIndex(this.gCodeRenderer.index + 1);
-        this.setState({sliderValue: (this.gCodeRenderer.index/this.gCodeRenderer.viewModels.length)*100 });        
+        const lastVerticeIndex = this.gCodeRenderer.feedGeo.vertices.length - 1;
+        const lastVertice = this.gCodeRenderer.feedGeo.vertices[
+          lastVerticeIndex
+        ];
+        
+        this.handleCNCModelMotion({
+          x: lastVertice.x,
+          y: lastVertice.z,
+          z: lastVertice.y
+        });
+        this.setState({
+          sliderValue:
+            (this.gCodeRenderer.index / this.gCodeRenderer.viewModels.length) *
+            100
+        });
       }
     }
 
@@ -202,6 +226,25 @@ export default class HomePage extends Component {
     // an animation and requests that the browser call a specified function
     // to update an animation before the next repaint
     this.requestID = window.requestAnimationFrame(this.startAnimationLoop);
+  };
+
+  handleCNCModelMotion = ({ x, y, z }) => {
+    if (this.xAxis && this.zAxis && this.body && this.nut) {      
+      this.xAxis.position.x = this.targetPoint.x;
+      this.zAxis.position.x = this.targetPoint.x;
+      this.body.position.x = this.targetPoint.x;
+      this.nut.position.x = this.targetPoint.x;
+
+      this.zAxis.position.y = this.targetPoint.y;
+      this.body.position.y = this.targetPoint.y;
+      this.nut.position.y = this.targetPoint.y;
+
+      this.yAxis.position.z = this.targetPoint.z;
+    }
+    
+    this.targetPoint.x = (x) * 0.5;
+    this.targetPoint.y = (y) * 0.5 - 35;
+    this.targetPoint.z = z * 0.5 + 35;
   };
 
   /**
@@ -219,20 +262,6 @@ export default class HomePage extends Component {
     // .updateProjectionMatrix for the changes to take effect.
     this.camera.updateProjectionMatrix();
   };
-
-  handleCNCModelMotion = () => {
-    this.xAxis.position.x = this.targetPoint.x; 
-    this.zAxis.position.x = this.targetPoint.x;
-    this.body.position.x = this.targetPoint.x;
-    this.nut.position.x = this.targetPoint.x;
-
-    this.zAxis.position.y = this.targetPoint.y;
-    this.body.position.y = this.targetPoint.y;
-    this.nut.position.y = this.targetPoint.y;
- 
-    this.zAxis = this.targetPoint.z -35;
-
-  }
 
   onLoadGCode = (gcode = "") => {
     //gcode = "G17 G20 G90 G94 G54\nG0 Z0.25\nX-0.5 Y0.\nZ0.1\nG01 Z0. F5.\nG02 X0. Y0.5 I0.5 J0. F2.5\nX0.5 Y0. I0. J-0.5\nX0. Y-0.5 I-0.5 J0.\nX-0.5 Y0. I0. J0.5\nG01 Z0.1 F5.\nG00 X0. Y0. Z0.25\n"
@@ -263,11 +292,15 @@ export default class HomePage extends Component {
   handleSlider = percent => {
     if (this.gCodeRenderer && this.gCodeRenderer.viewModels.length) {
       const index = Math.floor(
-        ((this.gCodeRenderer.viewModels.length-1) * percent) / 100
+        ((this.gCodeRenderer.viewModels.length - 1) * percent) / 100
       );
-      if (index <= this.gCodeRenderer.viewModels.length-1) {
+      if (index <= this.gCodeRenderer.viewModels.length - 1) {
         this.gCodeRenderer.setIndex(index);
-        this.setState({sliderValue: (this.gCodeRenderer.index/this.gCodeRenderer.viewModels.length)*100 });
+        this.setState({
+          sliderValue:
+            (this.gCodeRenderer.index / this.gCodeRenderer.viewModels.length) *
+            100
+        });
       }
     }
   };
@@ -279,7 +312,11 @@ export default class HomePage extends Component {
           style={{ minHeight: 650, height: "100%", width: "100%" }}
           ref={this.renderElement}
         />
-        <Controls sliderValue={this.state.sliderValue} onPlay={this.handlePlay} onChangeSlider={this.handleSlider} />
+        <Controls
+          sliderValue={this.state.sliderValue}
+          onPlay={this.handlePlay}
+          onChangeSlider={this.handleSlider}
+        />
       </div>
     );
   }
