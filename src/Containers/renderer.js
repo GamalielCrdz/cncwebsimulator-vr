@@ -197,6 +197,7 @@ export default class HomePage extends Component {
         this.gCodeRenderer.index ===
         this.gCodeRenderer.viewModels.length - 1
       ) {
+        this.setCNCModelInitialPosition();
       } else {
         this.gCodeRenderer.setIndex(this.gCodeRenderer.index + 1);
         const lastVerticeIndex = this.gCodeRenderer.feedGeo.vertices.length - 1;
@@ -227,7 +228,7 @@ export default class HomePage extends Component {
     // to update an animation before the next repaint
     this.requestID = window.requestAnimationFrame(this.startAnimationLoop);
   };
-
+  
   handleCNCModelMotion = ({ x, y, z }) => {
     if (this.xAxis && this.zAxis && this.body && this.nut) {      
       this.xAxis.position.x = this.targetPoint.x;
@@ -246,6 +247,17 @@ export default class HomePage extends Component {
     this.targetPoint.y = (y) * 0.5 - 35;
     this.targetPoint.z = z * 0.5 + 35;
   };
+
+  setCNCModelInitialPosition() {
+    this.xAxis.position.x = 0;
+    this.zAxis.position.x = 0;
+    this.zAxis.position.y = -35;
+    this.body.position.x = 0;
+    this.body.position.y = -35;
+    this.nut.position.x = 0;
+    this.nut.position.y = -35;
+    this.yAxis.position.z = 35;
+  }
 
   /**
    * This function is called every time that
