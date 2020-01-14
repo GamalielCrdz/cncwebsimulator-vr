@@ -4,6 +4,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { StereoEffect } from "three/examples/jsm/effects/StereoEffect";
 import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader";
 import { GCodeParser, GCodeRenderer } from "../lib";
+import Controls from "./controls";
 
 // Models for cnc
 import baseShaftModel from "../assets/models/EjesBase.3mf";
@@ -21,7 +22,12 @@ export default class HomePage extends Component {
     this.camera = null;
     this.renderer = null;
     this.effect = null;
+    this.currentgcodeObject = null;
+    this.gCodeRenderer = null;
     this.renderElement = React.createRef();
+    this.state = {
+      index: 0,
+    }
   }
 
   componentDidMount() {
@@ -29,7 +35,6 @@ export default class HomePage extends Component {
     this.addCustomSceneObjects();
     this.startAnimationLoop();
     window.addEventListener("resize", this.handleWindowResize);
-    this.onLoadGCode();
   }
 
   componentWillUnmount() {
@@ -61,15 +66,16 @@ export default class HomePage extends Component {
 
     // OrbitControls allow a camera to orbit around the object
     this.controls = new OrbitControls(this.camera, this.renderElement.current);
-//    this.controls. = -1;
+    //    this.controls. = -1;
     this.controls.enableKeys = true;
-    
+
     // for vr effect
     this.effect = new StereoEffect(this.renderer);
     this.effect.setSize(width, height);
 
     this.renderElement.current.appendChild(this.renderer.domElement); // mount using React ref
     this.scene = new THREE.Scene();
+    this.scene.background = "#ffffff";
   };
 
   /**
@@ -77,14 +83,14 @@ export default class HomePage extends Component {
    * like light, cnc model, etc..
    */
   addCustomSceneObjects = () => {
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4)
-	  ambientLight.position.set(0, 0, -100);
-	  this.scene.add(ambientLight);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    ambientLight.position.set(0, 0, -100);
+    this.scene.add(ambientLight);
 
     const hemiLight = new THREE.HemisphereLight(0xffffff, "#dd8e4c", 0.38);
     hemiLight.position.set(0, 200, 0);
     this.scene.add(hemiLight);
-    
+
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.color.setHSL(0.1, 1, 0.95);
     dirLight.position.set(0, 5.6, 7);
@@ -103,14 +109,14 @@ export default class HomePage extends Component {
 
     //The X axis is red. The Y axis is green. The Z axis is blue.
     const axesHelper = new THREE.AxesHelper(1000);
-    this.scene.add( axesHelper );
+    this.scene.add(axesHelper);
 
     let ground = new THREE.Mesh(
       new THREE.PlaneBufferGeometry(5000, 5000),
       new THREE.MeshPhongMaterial({
         color: "#dd8e4c",
         depthWrite: true,
-        side: THREE.DoubleSide,
+        side: THREE.DoubleSide
       })
     );
     ground.position.y = -83;
@@ -131,11 +137,11 @@ export default class HomePage extends Component {
     const cncModel = new THREE.Group();
     const threeMFLoader = new ThreeMFLoader();
     const CNCMaterial = new THREE.MeshStandardMaterial({
-      color: 'lightgray',
+      color: "lightgray",
       roughness: 0.5,
       metalness: 0.5,
       side: THREE.DoubleSide,
-      flatShading: true,
+      flatShading: true
     });
 
     for (const model of models) {
@@ -146,7 +152,10 @@ export default class HomePage extends Component {
           });
           child.castShadow = true;
         });
-        object.rotateOnAxis(new THREE.Vector3(1, 0, 0).normalize(), -Math.PI / 2);
+        object.rotateOnAxis(
+          new THREE.Vector3(1, 0, 0).normalize(),
+          -Math.PI / 2
+        );
         cncModel.add(object);
       });
     }
@@ -155,6 +164,18 @@ export default class HomePage extends Component {
   };
 
   startAnimationLoop = () => {
+    if (
+      this.gCodeRenderer &&
+      this.gCodeRenderer.index <= this.gCodeRenderer.viewModels.length-1
+    ) {
+      if (this.gCodeRenderer.index === this.gCodeRenderer.viewModels.length-1) {
+
+      } else {
+        this.gCodeRenderer.setIndex(this.gCodeRenderer.index + 1);
+        this.setState({sliderValue: (this.gCodeRenderer.index/this.gCodeRenderer.viewModels.length)*100 });        
+      }
+    }
+
     this.controls.update();
     this.props.isMobile
       ? this.effect.render(this.scene, this.camera)
@@ -181,25 +202,54 @@ export default class HomePage extends Component {
     // .updateProjectionMatrix for the changes to take effect.
     this.camera.updateProjectionMatrix();
   };
-  
-  onLoadGCode = (gcode) => {
-    gcode = "G17 G20 G90 G94 G54\nG0 Z0.25\nX-0.5 Y0.\nZ0.1\nG01 Z0. F5.\nG02 X0. Y0.5 I0.5 J0. F2.5\nX0.5 Y0. I0. J-0.5\nX0. Y-0.5 I-0.5 J0.\nX-0.5 Y0. I0. J0.5\nG01 Z0.1 F5.\nG00 X0. Y0. Z0.25\n"
+
+  onLoadGCode = (gcode = "") => {
+    //gcode = "G17 G20 G90 G94 G54\nG0 Z0.25\nX-0.5 Y0.\nZ0.1\nG01 Z0. F5.\nG02 X0. Y0.5 I0.5 J0. F2.5\nX0.5 Y0. I0. J-0.5\nX0. Y-0.5 I-0.5 J0.\nX-0.5 Y0. I0. J0.5\nG01 Z0.1 F5.\nG00 X0. Y0. Z0.25\n"
     const gp = new GCodeParser();
     const gm = gp.parse(gcode);
-    const gr = new GCodeRenderer();
-    
-    const gcodeObj = gr.render(gm);
-    gcodeObj.scale.set(100,100,100);
-    gcodeObj.rotateOnAxis(new THREE.Vector3(1, 0, 0).normalize(), -Math.PI / 2);
-    this.scene.add(gcodeObj);
-  }
+    this.gCodeRenderer = new GCodeRenderer();
+
+    // if previously exist a object, remove it
+    if (!!this.currentgcodeObject) {
+      this.scene.remove(this.currentgcodeObject);
+    }
+
+    this.currentgcodeObject = this.gCodeRenderer.render(gm);
+    this.currentgcodeObject.scale.set(0.5, 0.5, 0.5);
+    this.currentgcodeObject.rotateOnAxis(
+      new THREE.Vector3(1, 0, 0).normalize(),
+      -Math.PI / 2
+    );
+    this.currentgcodeObject.name = "currentgcodeObject";
+    this.scene.add(this.currentgcodeObject);
+  };
+
+  handlePlay = () => {
+    const gcode = this.props.getEditorValue();
+    this.onLoadGCode(gcode);
+  };
+
+  handleSlider = percent => {
+    if (this.gCodeRenderer && this.gCodeRenderer.viewModels.length) {
+      const index = Math.floor(
+        ((this.gCodeRenderer.viewModels.length-1) * percent) / 100
+      );
+      if (index <= this.gCodeRenderer.viewModels.length-1) {
+        this.gCodeRenderer.setIndex(index);
+        this.setState({sliderValue: (this.gCodeRenderer.index/this.gCodeRenderer.viewModels.length)*100 });
+      }
+    }
+  };
 
   render() {
     return (
-      <div
-        style={{ minHeight: 650, height: "100%", width: "100%" }}
-        ref={this.renderElement}
-      />
+      <div>
+        <div
+          style={{ minHeight: 650, height: "100%", width: "100%" }}
+          ref={this.renderElement}
+        />
+        <Controls sliderValue={} onPlay={this.handlePlay} onChangeSlider={this.handleSlider} />
+      </div>
     );
   }
 }

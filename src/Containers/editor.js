@@ -1,21 +1,36 @@
-import React from 'react'
-import { Affix, Button } from 'antd';
+import React, { useState } from "react";
+import { Affix, Button, Icon } from "antd";
+import EditorWrapper from "./editor.style";
+import AceEditor from "react-ace";
 
-export default () => {
+import "ace-builds/src-noconflict/mode-gcode";
+import "ace-builds/src-noconflict/theme-xcode";
+
+export default (props) => {
+  const [toggle, setToggle] = useState(false);
+
   return (
-    <div style={{ position: "absolute", color: "red" }}>
-      <Affix offsetTop={10}>
-          <Button
-            type="primary"
-            onClick={() => {
-              this.setState({
-                top: 10 + 10,
-              });
-            }}
-          >
-            Affix top
-          </Button>
-        </Affix>
-    </div>
-  )
-}
+    <EditorWrapper>
+      <div className={`editor-container ${toggle && "show"}`}>
+        <AceEditor
+          mode="gcode"
+          theme="xcode"
+          onChange={ (value) => { props.setEditorValue(value) }}
+          value={props.editorValue}
+          //onChange={onChange}
+          name="UNIQUE_ID_OF_DIV"
+          editorProps={{ $blockScrolling: true }}
+          className={`editor-area`}
+        />
+      </div>
+      <Button
+        className="editor-toggle-button"
+        icon="edit"
+        size={"large"}
+        onClick={() => {
+          setToggle(!toggle);
+        }}
+      />
+    </EditorWrapper>
+  );
+};

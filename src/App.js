@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import Renderer from './Containers/renderer';
 import Editor from './Containers/editor';
+import Navbar from './Containers/navbar';
 
 function App() {
+  const [editorValue, setEditorValue] = useState("");
 
   const isMobile = {
     Android: function () {
@@ -27,10 +29,15 @@ function App() {
     }
   };
 
+  function getEditorValue(){
+    return editorValue;
+  }
+
   return (
     <div className="App">
-      <Editor />
-      <Renderer isMobile={!!isMobile.any()} ></Renderer>
+      {/* <Navbar /> */}
+      <Editor setEditorValue={setEditorValue} editorValue={editorValue} />
+      <Renderer isMobile={!!isMobile.any()} getEditorValue={getEditorValue} />
     </div>
   );
 }
