@@ -10,7 +10,8 @@ const Container = styled.div`
   bottom: 10px;
   left: 0;
   right: 0;
-  margin: 0 auto;
+  margin: auto;
+  margin-left: 350;
   display: flex;
   flex-flow: column nowrap;
   align-items: center;

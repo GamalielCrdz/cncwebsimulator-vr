@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { DeviceOrientationControls } from "three/examples/jsm/controls/DeviceOrientationControls";
 import { StereoEffect } from "three/examples/jsm/effects/StereoEffect";
 import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader";
 import { GCodeParser, GCodeRenderer } from "../lib";
 import Controls from "./controls";
+import Editor from "./editor";
 
 // Models for cnc
 import baseShaftModel from "../assets/models/EjesBase.3mf";
@@ -34,7 +36,9 @@ export default class HomePage extends Component {
 
     this.renderElement = React.createRef();
     this.state = {
-      index: 0
+      index: 0,
+      editorValue: "",
+      currentLine: 0
     };
   }
 
@@ -72,10 +76,15 @@ export default class HomePage extends Component {
     //this.camera.position.set(0, -340, 250);
     this.camera.position.set(0, 200, 300);
 
-    // OrbitControls allow a camera to orbit around the object
-    this.controls = new OrbitControls(this.camera, this.renderElement.current);
-    //    this.controls. = -1;
-    this.controls.enableKeys = true;
+    if (this.props.isMobile) {
+      this.controls = new DeviceOrientationControls(this.camera);
+      alert('here')
+    } else {
+      // OrbitControls allow a camera to orbit around the object
+      this.controls = new OrbitControls(this.camera, this.renderElement.current);
+      //    this.controls. = -1;
+      this.controls.enableKeys = true;
+    }
 
     // for vr effect
     this.effect = new StereoEffect(this.renderer);
@@ -137,7 +146,7 @@ export default class HomePage extends Component {
     const models = [
       { model: baseShaftModel, value: "baseShaft" },
       { model: xAxisModel, value: "xAxis" },
-      { model: yAxisModel, value: "yAxis" },  
+      { model: yAxisModel, value: "yAxis" },
       { model: zAxisModel, value: "zAxis" },
       { model: bodyModel, value: "body" },
       { model: nutModel, value: "nut" }
@@ -170,11 +179,11 @@ export default class HomePage extends Component {
           object.position.set(0, -35, 35);
         }
 
-        if (modelObject.value === 'zAxis') {
-            object.position.y = -35;
+        if (modelObject.value === "zAxis") {
+          object.position.y = -35;
         }
 
-        if (modelObject.value === 'yAxis') {
+        if (modelObject.value === "yAxis") {
           object.position.z = 35;
         }
 
@@ -204,14 +213,16 @@ export default class HomePage extends Component {
         const lastVertice = this.gCodeRenderer.feedGeo.vertices[
           lastVerticeIndex
         ];
-        
+
         this.handleCNCModelMotion({
           x: lastVertice.x,
           y: lastVertice.z,
           z: lastVertice.y
         });
-        this.props.setCurrentLine(this.gCodeRenderer.viewModels[this.gCodeRenderer.index].code.words[0].lineNumber - 1);
         this.setState({
+          currentLine:
+            this.gCodeRenderer.viewModels[this.gCodeRenderer.index].code
+              .words[0].lineNumber - 1,
           sliderValue:
             (this.gCodeRenderer.index / this.gCodeRenderer.viewModels.length) *
             100
@@ -229,9 +240,9 @@ export default class HomePage extends Component {
     // to update an animation before the next repaint
     this.requestID = window.requestAnimationFrame(this.startAnimationLoop);
   };
-  
+
   handleCNCModelMotion = ({ x, y, z }) => {
-    if (this.xAxis && this.zAxis && this.body && this.nut) {      
+    if (this.xAxis && this.zAxis && this.body && this.nut) {
       this.xAxis.position.x = this.targetPoint.x;
       this.zAxis.position.x = this.targetPoint.x;
       this.body.position.x = this.targetPoint.x;
@@ -245,9 +256,9 @@ export default class HomePage extends Component {
 
       this.currentgcodeObject.position.z = this.targetPoint.z;
     }
-    
-    this.targetPoint.x = (x) * 0.5;
-    this.targetPoint.y = (y) * 0.5 - 35;
+
+    this.targetPoint.x = x * 0.5;
+    this.targetPoint.y = y * 0.5 - 35;
     this.targetPoint.z = z * 0.5 + 35;
   };
 
@@ -266,9 +277,9 @@ export default class HomePage extends Component {
    * This function is called every time that
    * the screen change of dimensions
    */
-  handleWindowResize = () => {
-    const width = this.renderElement.current.clientWidth;
-    const height = this.renderElement.current.clientHeight;
+  handleWindowResize = (toggle = true) => {
+    const width = toggle ? window.innerWidth : window.innerWidth - 350;
+    const height = window.innerHeight;
 
     this.renderer.setSize(width, height);
     this.camera.aspect = width / height;
@@ -300,7 +311,7 @@ export default class HomePage extends Component {
   };
 
   handlePlay = () => {
-    const gcode = this.props.getEditorValue();
+    const gcode = this.state.editorValue;
     this.onLoadGCode(gcode);
   };
 
@@ -320,18 +331,36 @@ export default class HomePage extends Component {
     }
   };
 
+  setEditorValue = value => {
+    this.setState({ editorValue: value });
+  };
+
   render() {
     return (
-      <div>
-        <div
-          style={{ minHeight: 650, height: "100%", width: "100%" }}
-          ref={this.renderElement}
-        />
-        <Controls
-          sliderValue={this.state.sliderValue}
-          onPlay={this.handlePlay}
-          onChangeSlider={this.handleSlider}
-        />
+      <div style={{ width: "100%", overflow: "hidden" }}>
+        <div style={{ display: "flex", height: "100%" }}>
+          <Editor
+            setEditorValue={this.setEditorValue}
+            editorValue={this.state.editorValue}
+            currentLine={this.state.currentLine}
+            onToggle={this.handleWindowResize}
+          />
+          <div style={{ position: "relative", width: "100%" }}>
+            <div
+              style={{
+                height: window.innerHeight,
+                width: "100%",
+                minWidth: 350
+              }}
+              ref={this.renderElement}
+            />
+            <Controls
+              sliderValue={this.state.sliderValue}
+              onPlay={this.handlePlay}
+              onChangeSlider={this.handleSlider}
+            />
+          </div>
+        </div>
       </div>
     );
   }

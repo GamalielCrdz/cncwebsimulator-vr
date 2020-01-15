@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import styled from "styled-components";
 import Renderer from './Containers/renderer';
 import Editor from './Containers/editor';
 import Navbar from './Containers/navbar';
+
+const AppWrapper = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+`; 
 
 function App() {
   const [editorValue, setEditorValue] = useState("");
@@ -37,8 +43,10 @@ function App() {
   return (
     <div className="App">
       {/* <Navbar /> */}
-      <Editor setEditorValue={setEditorValue} editorValue={editorValue} currentLine={currentLine} />
-      <Renderer isMobile={!!isMobile.any()} getEditorValue={getEditorValue} setCurrentLine={setCurrentLine} />
+      <AppWrapper>
+        {/* <Editor setEditorValue={setEditorValue} editorValue={editorValue} currentLine={currentLine} /> */}
+        <Renderer isMobile={!!isMobile.any()} getEditorValue={getEditorValue} setCurrentLine={setCurrentLine} />
+      </AppWrapper>
     </div>
   );
 }

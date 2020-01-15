@@ -30,20 +30,19 @@ export default props => {
             props.setEditorValue(value);
           }}
           value={props.editorValue}
-          //onChange={onChange}
           name="GCODE-EDITOR"
-          editorProps={{ $blockScrolling: true }}
           highlightActiveLine={true}
           className={`editor-area`}
           markers={markers}
         />
       </div>
       <Button
-        className="editor-toggle-button"
+        className={`editor-toggle-button ${toggle && 'show'}`}
         icon="edit"
         size={"large"}
         onClick={() => {
           setToggle(!toggle);
+          props.onToggle(toggle);
         }}
       />
     </EditorWrapper>

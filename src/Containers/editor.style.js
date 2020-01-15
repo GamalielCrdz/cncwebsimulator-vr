@@ -1,14 +1,13 @@
 import styled from "styled-components";
 
 const editorWrapper = styled.div`
-  position: absolute;
-  height: 90%;
+  height: 100%;
   display: flex;
   flex-flow: row nowrap;
 
   .editor-container {
     margin-left: -350px;
-    transition: margin-left 2s;
+    transition: margin-left 1s;
     height: 100%;
     &.show {
       margin: 0px;
@@ -20,7 +19,13 @@ const editorWrapper = styled.div`
   }
 
   .editor-toggle-button {
-
+    z-index: 2;
+    position: absolute;
+    left: 0px;
+    transition: left 1s;
+    &.show {
+      left: 350px;
+    }
   }
 
   @media only screen and (max-width: 768px) {
