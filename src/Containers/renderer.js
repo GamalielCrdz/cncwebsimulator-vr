@@ -210,6 +210,7 @@ export default class HomePage extends Component {
           y: lastVertice.z,
           z: lastVertice.y
         });
+        this.props.setCurrentLine(this.gCodeRenderer.viewModels[this.gCodeRenderer.index].code.words[0].lineNumber - 1);
         this.setState({
           sliderValue:
             (this.gCodeRenderer.index / this.gCodeRenderer.viewModels.length) *
@@ -241,6 +242,8 @@ export default class HomePage extends Component {
       this.nut.position.y = this.targetPoint.y;
 
       this.yAxis.position.z = this.targetPoint.z;
+
+      this.currentgcodeObject.position.z = this.targetPoint.z;
     }
     
     this.targetPoint.x = (x) * 0.5;

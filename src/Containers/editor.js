@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Affix, Button, Icon } from "antd";
+import { Button } from "antd";
 import EditorWrapper from "./editor.style";
 import AceEditor from "react-ace";
 
@@ -33,6 +33,7 @@ export default props => {
           //onChange={onChange}
           name="GCODE-EDITOR"
           editorProps={{ $blockScrolling: true }}
+          highlightActiveLine={true}
           className={`editor-area`}
           markers={markers}
         />

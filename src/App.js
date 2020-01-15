@@ -7,6 +7,7 @@ import Navbar from './Containers/navbar';
 
 function App() {
   const [editorValue, setEditorValue] = useState("");
+  const [currentLine, setCurrentLine] = useState(0);
 
   const isMobile = {
     Android: function () {
@@ -36,8 +37,8 @@ function App() {
   return (
     <div className="App">
       {/* <Navbar /> */}
-      <Editor setEditorValue={setEditorValue} editorValue={editorValue} />
-      <Renderer isMobile={!!isMobile.any()} getEditorValue={getEditorValue} />
+      <Editor setEditorValue={setEditorValue} editorValue={editorValue} currentLine={currentLine} />
+      <Renderer isMobile={!!isMobile.any()} getEditorValue={getEditorValue} setCurrentLine={setCurrentLine} />
     </div>
   );
 }
