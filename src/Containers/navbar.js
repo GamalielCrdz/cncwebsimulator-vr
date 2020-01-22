@@ -1,9 +1,9 @@
 import React from 'react'
 import NavbarWrapper from './navbar.style'
 
-export default () => {
+export default ({ navbarHeigth }) => {
   return (
-    <NavbarWrapper>
+    <NavbarWrapper navbarHeigth={navbarHeigth} >
       navbar
     </NavbarWrapper>
   )

@@ -13,8 +13,17 @@ const editorWrapper = styled.div`
       margin: 0px;
     }
     .editor-area {
-      height: 100%!important;
+      height: calc(100% - 50px)!important;
       width: 350px!important;
+    }
+    .editor-actions {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-evenly;
+      width: 100%;
+      background-color: red;
+      height: 50px;
+      padding: 9px;
     }
   }
 

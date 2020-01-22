@@ -4,7 +4,7 @@ const navbarWrapper = styled.div`
     width: 100%;
     background-color: #215b33;
     overflow: hidden;
-    height: 40px;
+    height: ${props => props.navbarHeigth}px;
 `;
 
 export default navbarWrapper;

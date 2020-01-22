@@ -7,6 +7,7 @@ import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader";
 import { GCodeParser, GCodeRenderer } from "../lib";
 import Controls from "./controls";
 import Editor from "./editor";
+import { notification } from "antd";
 
 // Models for cnc
 import baseShaftModel from "../assets/models/EjesBase.3mf";
@@ -24,17 +25,21 @@ export default class HomePage extends Component {
     this.camera = null;
     this.renderer = null;
     this.effect = null;
-    this.currentgcodeObject = null;
-    this.gCodeRenderer = null;
     this.baseShaft = null;
     this.xAxis = null;
     this.yAxis = null;
     this.zAxis = null;
     this.body = null;
     this.nut = null;
-    this.targetPoint = new THREE.Vector3(0, 0, 0);
-
     this.renderElement = React.createRef();
+
+    this.gCodeRenderer = null;
+    this.currentgcodeObject = null;
+    this.targetPoint = new THREE.Vector3(0, 0, 0);
+    this.pause = true;
+
+    this.inputFile = React.createRef();
+
     this.state = {
       index: 0,
       editorValue: "",
@@ -63,6 +68,7 @@ export default class HomePage extends Component {
     const width = this.renderElement.current.clientWidth;
     const height = this.renderElement.current.clientHeight;
 
+
     // set the renderer propierties
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.gammaFactor = 1;
@@ -78,10 +84,12 @@ export default class HomePage extends Component {
 
     if (this.props.isMobile) {
       this.controls = new DeviceOrientationControls(this.camera);
-      alert('here')
     } else {
       // OrbitControls allow a camera to orbit around the object
-      this.controls = new OrbitControls(this.camera, this.renderElement.current);
+      this.controls = new OrbitControls(
+        this.camera,
+        this.renderElement.current
+      );
       //    this.controls. = -1;
       this.controls.enableKeys = true;
     }
@@ -200,13 +208,21 @@ export default class HomePage extends Component {
   startAnimationLoop = () => {
     if (
       this.gCodeRenderer &&
-      this.gCodeRenderer.index <= this.gCodeRenderer.viewModels.length - 1
+      this.gCodeRenderer.index <= this.gCodeRenderer.viewModels.length - 1 &&
+      this.pause
     ) {
       if (
         this.gCodeRenderer.index ===
         this.gCodeRenderer.viewModels.length - 1
       ) {
         this.setCNCModelInitialPosition();
+        this.gCodeRenderer = null;
+        this.targetPoint = new THREE.Vector3(0, 0, 0);
+        this.pause = true;
+        notification["success"]({
+          message: "Finalizado",
+          description: "Finalizo el proceso"
+        });
       } else {
         this.gCodeRenderer.setIndex(this.gCodeRenderer.index + 1);
         const lastVerticeIndex = this.gCodeRenderer.feedGeo.vertices.length - 1;
@@ -279,7 +295,7 @@ export default class HomePage extends Component {
    */
   handleWindowResize = (toggle = true) => {
     const width = toggle ? window.innerWidth : window.innerWidth - 350;
-    const height = window.innerHeight;
+    const height = window.innerHeight - this.props.navbarHeigth ;
 
     this.renderer.setSize(width, height);
     this.camera.aspect = width / height;
@@ -310,9 +326,24 @@ export default class HomePage extends Component {
     this.scene.add(this.currentgcodeObject);
   };
 
-  handlePlay = () => {
-    const gcode = this.state.editorValue;
-    this.onLoadGCode(gcode);
+  handlePlay = play => {
+    if (play) {
+      if (!this.pause) {
+        this.pause = true;
+      } else {
+        const gcode = this.state.editorValue;
+        if (gcode && gcode.length > 0) {
+          this.onLoadGCode(gcode);
+        } else {
+          notification["info"]({
+            message: "No hay codigo",
+            description: "No hay gcode"
+          });
+        }
+      }
+    } else {
+      this.pause = false;
+    }
   };
 
   handleSlider = percent => {
@@ -335,20 +366,92 @@ export default class HomePage extends Component {
     this.setState({ editorValue: value });
   };
 
+  handleEditorActions = action => {
+    switch (action) {
+      case "file-add":
+        this.setEditorValue(
+          "%\nG21 G90 G40 G98\nG54\nT01\nS1200 M03\n\n\nM5\nM30\n\n"
+        );
+        break;
+      case "upload":
+        this.inputFile.current.click();
+        break;
+      case "download":
+        const textFileAsBlob = new Blob([this.state.editorValue], {
+          encoding: "UTF-8",
+          type: "text/plain;charset=UTF-8"
+        });
+        const downloadLink = document.createElement("a");
+        downloadLink.download = "gcode.txt";
+        downloadLink.innerHTML = "Download File";
+        if (window.webkitURL != null) {
+          downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+        } else {
+          downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+        }
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        break;
+      case "delete":
+        this.setState({ editorValue: "", sliderValue: 0 }, () => {
+          this.setCNCModelInitialPosition();
+          this.gCodeRenderer = null;
+          this.scene.remove(this.currentgcodeObject);
+          this.currentgcodeObject = null;
+          this.targetPoint = new THREE.Vector3(0, 0, 0);
+          this.pause = true;
+        });
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  onGFileUpload(event) {
+    let files = event.target.files[0];
+    let verifyGcode = event.target.files[0].name.split(".");
+    let verifyAndShow = verifyGcode[verifyGcode.length - 1];
+
+    if (verifyAndShow === "gcode") {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const gcode = reader.result;
+        this.onLoadGCode(gcode);
+      };
+
+      reader.readAsText(files);
+    } else {
+      document.getElementById("modal").style.display = "block";
+    }
+  }
+
   render() {
+    const { navbarHeigth } = this.props;
     return (
       <div style={{ width: "100%", overflow: "hidden" }}>
-        <div style={{ display: "flex", height: "100%" }}>
+        <input
+          accept=".gcode"
+          ref={this.inputFile}
+          type="file"
+          style={{ display: "none" }}
+          onChange={this.onGFileUpload}
+        />
+        <div style={{ display: "flex", height: '100%' }}>
           <Editor
             setEditorValue={this.setEditorValue}
             editorValue={this.state.editorValue}
             currentLine={this.state.currentLine}
             onToggle={this.handleWindowResize}
+            editorAction={this.handleEditorActions}
           />
-          <div style={{ position: "relative", width: "100%" }}>
+          <div style={{ position: "relative", width: "100%", height: 'fit-content' }}>
             <div
               style={{
-                height: window.innerHeight,
+                height: window.innerHeight - navbarHeigth,
                 width: "100%",
                 minWidth: 350
               }}

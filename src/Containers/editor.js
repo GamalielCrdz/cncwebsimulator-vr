@@ -20,6 +20,7 @@ export default props => {
         }
       ]
     : undefined;
+  const actions = ["file-add", "upload", "download", "delete"];
   return (
     <EditorWrapper>
       <div className={`editor-container ${toggle && "show"}`}>
@@ -35,9 +36,21 @@ export default props => {
           className={`editor-area`}
           markers={markers}
         />
+        <div className="editor-actions">
+          {actions.map(acti => (
+            <Button
+              key={acti}
+              icon={acti}
+              title={acti}
+              onClick={() => {
+                props.editorAction(acti);
+              }}
+            />
+          ))}
+        </div>
       </div>
       <Button
-        className={`editor-toggle-button ${toggle && 'show'}`}
+        className={`editor-toggle-button ${toggle && "show"}`}
         icon="edit"
         size={"large"}
         onClick={() => {

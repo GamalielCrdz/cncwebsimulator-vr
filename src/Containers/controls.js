@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Button, Slider } from "antd";
 
@@ -18,7 +18,8 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-export default function controls(props) {
+export default props => {
+  const [play, setPlay] = useState(true);
   return (
     <Container>
       <Slider
@@ -30,11 +31,14 @@ export default function controls(props) {
         onChange={props.onChangeSlider}
       />
       <Button
-        icon="play-circle"
+        icon={play ? "play-circle" : "pause-circle"}
         size="large"
         shape="circle"
-        onClick={props.onPlay}
+        onClick={() => {
+          setPlay(!play);
+          props.onPlay(play);
+        }}
       />
     </Container>
   );
-}
+};
