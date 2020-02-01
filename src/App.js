@@ -54,7 +54,6 @@ function App() {
     <div className="App">
       <Navbar navbarHeigth={navbarHeigth} />
       <AppWrapper>
-        {/* <Editor setEditorValue={setEditorValue} editorValue={editorValue} currentLine={currentLine} /> */}
         <Renderer isMobile={!!isMobile.any()} navbarHeigth={navbarHeigth}  />
       </AppWrapper>
     </div>

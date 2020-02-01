@@ -100,7 +100,7 @@ export default class HomePage extends Component {
 
     this.renderElement.current.appendChild(this.renderer.domElement); // mount using React ref
     this.scene = new THREE.Scene();
-    this.scene.background = "#ffffff";
+    this.scene.background = new THREE.Color('#071720');
   };
 
   /**
@@ -110,11 +110,11 @@ export default class HomePage extends Component {
   addCustomSceneObjects = () => {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     ambientLight.position.set(0, 0, -100);
-    this.scene.add(ambientLight);
+    // this.scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0xffffff, "#dd8e4c", 0.38);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, "#154a50", 0.38);
     hemiLight.position.set(0, 200, 0);
-    this.scene.add(hemiLight);
+    // this.scene.add(hemiLight);
 
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.color.setHSL(0.1, 1, 0.95);
@@ -139,7 +139,7 @@ export default class HomePage extends Component {
     let ground = new THREE.Mesh(
       new THREE.PlaneBufferGeometry(5000, 5000),
       new THREE.MeshPhongMaterial({
-        color: "#dd8e4c",
+        color: "#154a50",
         depthWrite: true,
         side: THREE.DoubleSide
       })
@@ -162,7 +162,7 @@ export default class HomePage extends Component {
     const cncModel = new THREE.Group();
     const threeMFLoader = new ThreeMFLoader();
     const CNCMaterial = new THREE.MeshStandardMaterial({
-      color: "lightgray",
+      color: "#14ddc4",
       roughness: 0.5,
       metalness: 0.5,
       side: THREE.DoubleSide,
@@ -327,6 +327,7 @@ export default class HomePage extends Component {
   };
 
   handlePlay = play => {
+    //this.toggleFullScreen()
     if (play) {
       if (!this.pause) {
         this.pause = true;
@@ -346,6 +347,15 @@ export default class HomePage extends Component {
     }
   };
 
+  toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        this.renderElement.current.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) {
+        this.renderElement.current.exitFullscreen(); 
+      }
+    }
+  }
   handleSlider = percent => {
     if (this.gCodeRenderer && this.gCodeRenderer.viewModels.length) {
       const index = Math.floor(
@@ -447,6 +457,7 @@ export default class HomePage extends Component {
             currentLine={this.state.currentLine}
             onToggle={this.handleWindowResize}
             editorAction={this.handleEditorActions}
+            navbarHeigth={this.props.navbarHeigth}
           />
           <div style={{ position: "relative", width: "100%", height: 'fit-content' }}>
             <div

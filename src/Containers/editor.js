@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "antd";
 import EditorWrapper from "./editor.style";
 import AceEditor from "react-ace";
+import vrIcon from '../assets/images/vr_icon.svg'
 
 import "ace-builds/src-noconflict/mode-gcode";
 import "ace-builds/src-noconflict/theme-xcode";
@@ -49,8 +50,10 @@ export default props => {
           ))}
         </div>
       </div>
+      <div 
+        className={`editor-toggle-button ${toggle && "show"}`}      
+      >
       <Button
-        className={`editor-toggle-button ${toggle && "show"}`}
         icon="edit"
         size={"large"}
         onClick={() => {
@@ -58,6 +61,10 @@ export default props => {
           props.onToggle(toggle);
         }}
       />
+      <Button style={{ maxWidth: '40px', height: '40px', padding: '0px' }} >
+        <img src={vrIcon} alt='vr' width={30} height={40}/>
+      </Button>
+      </div>
     </EditorWrapper>
   );
 };

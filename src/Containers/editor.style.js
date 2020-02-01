@@ -28,6 +28,8 @@ const editorWrapper = styled.div`
   }
 
   .editor-toggle-button {
+    display: flex;
+    flex-flow: column nowrap;
     z-index: 2;
     position: absolute;
     left: 0px;
