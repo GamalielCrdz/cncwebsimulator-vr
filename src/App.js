@@ -48,7 +48,7 @@ function App() {
   // function getEditorValue(){
   //   return editorValue;
   // }
-  const navbarHeigth = 60;
+  const navbarHeigth = 0;
 
   return (
     <div className="App">

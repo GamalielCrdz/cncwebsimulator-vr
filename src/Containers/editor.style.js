@@ -21,7 +21,7 @@ const editorWrapper = styled.div`
       flex-flow: row nowrap;
       justify-content: space-evenly;
       width: 100%;
-      background-color: red;
+      background-color: rgba(33, 91, 51, 0.8);
       height: 50px;
       padding: 9px;
     }

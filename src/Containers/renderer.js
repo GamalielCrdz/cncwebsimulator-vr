@@ -79,7 +79,6 @@ export default class HomePage extends Component {
 
     //
     this.camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 10000);
-    //this.camera.position.set(0, -340, 250);
     this.camera.position.set(0, 200, 300);
 
     if (this.props.isMobile) {
@@ -92,6 +91,12 @@ export default class HomePage extends Component {
       );
       //    this.controls. = -1;
       this.controls.enableKeys = true;
+      this.controls.maxDistance = 2000;
+      this.controls.minDistance = 2;
+      this.controls.maxAzimuthAngle = Math.PI/2;
+      this.controls.minAzimuthAngle = -Math.PI/2;
+      this.controls.maxPolarAngle = Math.PI/2
+      // this.controls.autoRotate = true;
     }
 
     // for vr effect
@@ -100,7 +105,7 @@ export default class HomePage extends Component {
 
     this.renderElement.current.appendChild(this.renderer.domElement); // mount using React ref
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color('#071720');
+    this.scene.background = new THREE.Color('#170d2f');
   };
 
   /**
@@ -108,17 +113,17 @@ export default class HomePage extends Component {
    * like light, cnc model, etc..
    */
   addCustomSceneObjects = () => {
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.21);
     ambientLight.position.set(0, 0, -100);
-    // this.scene.add(ambientLight);
+    this.scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0xffffff, "#154a50", 0.38);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, "#286e7d", 0.2);
     hemiLight.position.set(0, 200, 0);
-    // this.scene.add(hemiLight);
+    this.scene.add(hemiLight);
 
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.color.setHSL(0.1, 1, 0.95);
-    dirLight.position.set(0, 5.6, 7);
+    dirLight.position.set(0, 7, 7);
     dirLight.position.multiplyScalar(30);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 512;
@@ -132,6 +137,9 @@ export default class HomePage extends Component {
     dirLight.shadow.bias = -0.0001;
     this.scene.add(dirLight);
 
+    // const helper = new THREE.DirectionalLightHelper(dirLight, 5 );
+    // this.scene.add( helper );
+
     //The X axis is red. The Y axis is green. The Z axis is blue.
     const axesHelper = new THREE.AxesHelper(1000);
     this.scene.add(axesHelper);
@@ -139,7 +147,7 @@ export default class HomePage extends Component {
     let ground = new THREE.Mesh(
       new THREE.PlaneBufferGeometry(5000, 5000),
       new THREE.MeshPhongMaterial({
-        color: "#154a50",
+        color: "#286e7d",
         depthWrite: true,
         side: THREE.DoubleSide
       })
@@ -162,9 +170,9 @@ export default class HomePage extends Component {
     const cncModel = new THREE.Group();
     const threeMFLoader = new ThreeMFLoader();
     const CNCMaterial = new THREE.MeshStandardMaterial({
-      color: "#14ddc4",
-      roughness: 0.5,
-      metalness: 0.5,
+      color: "#e8e0e0",
+      roughness: 0.53,
+      metalness: 0.6,
       side: THREE.DoubleSide,
       flatShading: true
     });
@@ -327,7 +335,7 @@ export default class HomePage extends Component {
   };
 
   handlePlay = play => {
-    //this.toggleFullScreen()
+    // this.toggleFullScreen()
     if (play) {
       if (!this.pause) {
         this.pause = true;
@@ -347,7 +355,7 @@ export default class HomePage extends Component {
     }
   };
 
-  toggleFullScreen() {
+  toggleFullScreen = () => {
     if (!document.fullscreenElement) {
         this.renderElement.current.requestFullscreen();
     } else {
