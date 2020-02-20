@@ -1,36 +1,22 @@
 import React, { Component } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { DeviceOrientationControls } from "three/examples/jsm/controls/DeviceOrientationControls";
 import { StereoEffect } from "three/examples/jsm/effects/StereoEffect";
-import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader";
 import { GCodeParser, GCodeRenderer } from "../lib";
 import Controls from "./controls";
 import Editor from "./editor";
 import { notification } from "antd";
-
-// Models for cnc
-import baseShaftModel from "../assets/models/EjesBase.3mf";
-import xAxisModel from "../assets/models/EjeX.3mf";
-import yAxisModel from "../assets/models/EjeY.3mf";
-import zAxisModel from "../assets/models/EjeZ.3mf";
-import bodyModel from "../assets/models/Body.3mf";
-import nutModel from "../assets/models/Nut.3mf";
+import { CNCModel } from "../lib/cncModel";
 
 export default class HomePage extends Component {
   constructor(props) {
     super(props);
-
+    
+    this.cncModel = new CNCModel('cncmodel2');
     this.scene = null;
     this.camera = null;
     this.renderer = null;
     this.effect = null;
-    this.baseShaft = null;
-    this.xAxis = null;
-    this.yAxis = null;
-    this.zAxis = null;
-    this.body = null;
-    this.nut = null;
     this.renderElement = React.createRef();
 
     this.gCodeRenderer = null;
@@ -52,10 +38,17 @@ export default class HomePage extends Component {
     this.addCustomSceneObjects();
     this.startAnimationLoop();
     window.addEventListener("resize", this.handleWindowResize);
+    window.addEventListener('deviceorientation', (e) => {
+      var alphaRotation = e.alpha ? e.alpha * (Math.PI / 180) : 0;
+      this.scene.rotation.y = -alphaRotation;
+      // this.cncModel.rotation.y = -alphaRotation;
+      // this.currentgcodeObject && (this.currentgcodeObject.rotation.z = -alphaRotation)
+    });
   }
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.handleWindowResize);
+    window.removeEventListener("deviceorientation", this.handleWindowResize);
     window.cancelAnimationFrame(this.requestID);
     this.controls.dispose();
   }
@@ -81,9 +74,9 @@ export default class HomePage extends Component {
     this.camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 10000);
     this.camera.position.set(0, 200, 300);
 
-    if (this.props.isMobile) {
-      this.controls = new DeviceOrientationControls(this.camera);
-    } else {
+    // if (this.props.isMobile) {
+      // this.controls = new DeviceOrientationControls(this.camera);
+    // } else {
       // OrbitControls allow a camera to orbit around the object
       this.controls = new OrbitControls(
         this.camera,
@@ -93,11 +86,11 @@ export default class HomePage extends Component {
       this.controls.enableKeys = true;
       this.controls.maxDistance = 2000;
       this.controls.minDistance = 2;
-      this.controls.maxAzimuthAngle = Math.PI/2;
-      this.controls.minAzimuthAngle = -Math.PI/2;
+      // this.controls.maxAzimuthAngle = Math.PI/2;
+      // this.controls.minAzimuthAngle = -Math.PI/2;
       this.controls.maxPolarAngle = Math.PI/2
       // this.controls.autoRotate = true;
-    }
+    // }
 
     // for vr effect
     this.effect = new StereoEffect(this.renderer);
@@ -158,59 +151,7 @@ export default class HomePage extends Component {
     ground.receiveShadow = true;
     this.scene.add(ground);
 
-    // add cnc model
-    const models = [
-      { model: baseShaftModel, value: "baseShaft" },
-      { model: xAxisModel, value: "xAxis" },
-      { model: yAxisModel, value: "yAxis" },
-      { model: zAxisModel, value: "zAxis" },
-      { model: bodyModel, value: "body" },
-      { model: nutModel, value: "nut" }
-    ];
-    const cncModel = new THREE.Group();
-    const threeMFLoader = new ThreeMFLoader();
-    const CNCMaterial = new THREE.MeshStandardMaterial({
-      color: "#e8e0e0",
-      roughness: 0.53,
-      metalness: 0.6,
-      side: THREE.DoubleSide,
-      flatShading: true
-    });
-
-    for (const modelObject of models) {
-      threeMFLoader.load(modelObject.model, object => {
-        object.traverse(child => {
-          child.children.forEach(function(item, index) {
-            item.material = CNCMaterial;
-          });
-          child.castShadow = true;
-        });
-        object.rotateOnAxis(
-          new THREE.Vector3(1, 0, 0).normalize(),
-          -Math.PI / 2
-        );
-
-        // for some reason this models don't load correctly and need to set the position
-        if (modelObject.value === "nut" || modelObject.value === "body") {
-          object.position.set(0, -35, 35);
-        }
-
-        if (modelObject.value === "zAxis") {
-          object.position.y = -35;
-        }
-
-        if (modelObject.value === "yAxis") {
-          object.position.z = 35;
-        }
-
-        cncModel.add(object);
-
-        // assign the object to the correspondent this variable
-        this[modelObject.value] = object;
-      });
-    }
-
-    this.scene.add(cncModel);
+    this.scene.add(this.cncModel.getCNCModel());
   };
 
   startAnimationLoop = () => {
@@ -266,20 +207,13 @@ export default class HomePage extends Component {
   };
 
   handleCNCModelMotion = ({ x, y, z }) => {
-    if (this.xAxis && this.zAxis && this.body && this.nut) {
-      this.xAxis.position.x = this.targetPoint.x;
-      this.zAxis.position.x = this.targetPoint.x;
-      this.body.position.x = this.targetPoint.x;
-      this.nut.position.x = this.targetPoint.x;
+    // if (this.xAxis && this.zAxis && this.body && this.nut) {
+      this.cncModel.setCNCPosition({x,y,z})
 
-      this.zAxis.position.y = this.targetPoint.y;
-      this.body.position.y = this.targetPoint.y;
-      this.nut.position.y = this.targetPoint.y;
-
-      this.yAxis.position.z = this.targetPoint.z;
+      // this.yAxis.position.z = this.targetPoint.z;
 
       this.currentgcodeObject.position.z = this.targetPoint.z;
-    }
+    // }
 
     this.targetPoint.x = x * 0.5;
     this.targetPoint.y = y * 0.5 - 35;
@@ -314,7 +248,6 @@ export default class HomePage extends Component {
   };
 
   onLoadGCode = (gcode = "") => {
-    //gcode = "G17 G20 G90 G94 G54\nG0 Z0.25\nX-0.5 Y0.\nZ0.1\nG01 Z0. F5.\nG02 X0. Y0.5 I0.5 J0. F2.5\nX0.5 Y0. I0. J-0.5\nX0. Y-0.5 I-0.5 J0.\nX-0.5 Y0. I0. J0.5\nG01 Z0.1 F5.\nG00 X0. Y0. Z0.25\n"
     const gp = new GCodeParser();
     const gm = gp.parse(gcode);
     this.gCodeRenderer = new GCodeRenderer();
@@ -334,6 +267,7 @@ export default class HomePage extends Component {
     this.scene.add(this.currentgcodeObject);
   };
 
+  
   handlePlay = play => {
     // this.toggleFullScreen()
     if (play) {
@@ -428,23 +362,24 @@ export default class HomePage extends Component {
     }
   };
 
-  onGFileUpload(event) {
+  onGFileUpload = (event) =>{
     let files = event.target.files[0];
     let verifyGcode = event.target.files[0].name.split(".");
     let verifyAndShow = verifyGcode[verifyGcode.length - 1];
 
-    if (verifyAndShow === "gcode") {
+    // if (verifyAndShow === "gcode") {
       const reader = new FileReader();
 
       reader.onload = () => {
         const gcode = reader.result;
+        this.setState({ editorValue: gcode  });
         this.onLoadGCode(gcode);
       };
 
       reader.readAsText(files);
-    } else {
-      document.getElementById("modal").style.display = "block";
-    }
+    // } else {
+      // document.getElementById("modal").style.display = "block";
+    // }
   }
 
   render() {
