@@ -18,6 +18,12 @@
         "path": "cncmodel1/EjeX.3mf",
         "name": "xAxis",
         "loader": "3mf",
+        "motions": [
+          {
+            "axis": "x",
+            "type": "lineal"
+          }
+        ],
         "material": {
           "color": "#e8e0e0",
           "roughness": 0.53,
@@ -30,7 +36,17 @@
         "path": "cncmodel1/EjeY.3mf",
         "name": "yAxis",
         "loader": "3mf",
-        "position": { "x": 0, "y": 0, "z": 35 },
+        "motions": [
+          {
+            "axis": "z",
+            "type": "lineal"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 35
+        },
         "material": {
           "color": "#e8e0e0",
           "roughness": 0.53,
@@ -43,7 +59,21 @@
         "path": "cncmodel1/EjeZ.3mf",
         "name": "zAxis",
         "loader": "3mf",
-        "position": { "x": 0, "y": -35, "z": 0 },
+        "motions": [
+          {
+            "axis": "x",
+            "type": "lineal"
+          },
+          {
+            "axis": "y",
+            "type": "lineal"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": -35,
+          "z": 0
+        },
         "material": {
           "color": "#e8e0e0",
           "roughness": 0.53,
@@ -56,7 +86,21 @@
         "path": "cncmodel1/Body.3mf",
         "name": "body",
         "loader": "3mf",
-        "position": { "x": 0, "y": -35, "z": 35 },
+        "motions": [
+          {
+            "axis": "x",
+            "type": "lineal"
+          },
+          {
+            "axis": "y",
+            "type": "lineal"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": -35,
+          "z": 35
+        },
         "material": {
           "color": "#e8e0e0",
           "roughness": 0.53,
@@ -69,7 +113,17 @@
         "path": "cncmodel1/Nut.3mf",
         "name": "nut",
         "loader": "3mf",
-        "position": { "x": 0, "y": -35, "z": 35 },
+        "motions": [
+          {
+            "axis": "y",
+            "type": "lineal"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": -35,
+          "z": 35
+        },
         "material": {
           "color": "#e8e0e0",
           "roughness": 0.53,
@@ -88,11 +142,7 @@
         "name": "xAxis",
         "loader": "obj",
         "material": {
-          "color": "#e8e0e0",
-          "roughness": 0.53,
-          "metalness": 0.6,
-          "side": "DoubleSide",
-          "flatShading": true
+          "path": "cncmodel2/XCorredera.mtl"
         }
       },
       {
@@ -100,11 +150,7 @@
         "name": "yAxis",
         "loader": "obj",
         "material": {
-          "color": "#e8e0e0",
-          "roughness": 0.53,
-          "metalness": 0.6,
-          "side": "DoubleSide",
-          "flatShading": true
+          "path": "cncmodel2/YCorredera.mtl"
         }
       },
       {
@@ -112,11 +158,39 @@
         "name": "zAxis",
         "loader": "obj",
         "material": {
-          "color": "#e8e0e0",
-          "roughness": 0.53,
-          "metalness": 0.6,
-          "side": "DoubleSide",
-          "flatShading": true
+          "path": "cncmodel2/ZCorredera.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/Toolholder.obj",
+        "name": "toolholder",
+        "loader": "obj",
+        "material": {
+          "path": "cncmodel2/Toolholder.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/SoporteMotor.obj",
+        "name": "soporte_motor",
+        "loader": "obj",
+        "material": {
+          "path": "cncmodel2/SoporteMotor.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/Profile2080.obj",
+        "name": "profile",
+        "loader": "obj",
+        "material": {
+          "path": "cncmodel2/Profile2080.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/PlacasY.obj",
+        "name": "placa_y",
+        "loader": "obj",
+        "material": {
+          "path": "cncmodel2/PlacasY.mtl"
         }
       },
       {
@@ -124,11 +198,60 @@
         "name": "nut",
         "loader": "obj",
         "material": {
-          "color": "#e8e0e0",
-          "roughness": 0.53,
-          "metalness": 0.6,
-          "side": "DoubleSide",
-          "flatShading": true
+          "path": "cncmodel2/Nut.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/MotorDC.obj",
+        "name": "motor_dc",
+        "loader": "obj",
+        "material": {
+          "path": "cncmodel2/MotorDC.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/Motor.obj",
+        "name": "motorx",
+        "loader": "obj",
+        "position": { "x": -105, "y": 90.5, "z": 78.5 },
+        "rotation": { "x": 0, "y": 0, "z": 90},
+        "material": {
+          "path": "cncmodel2/Motor.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/Motor.obj",
+        "name": "motory",
+        "loader": "obj",
+        "position": { "x": 0, "y": 140.49, "z": -30 },
+        "material": {
+          "path": "cncmodel2/Motor.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/Motor.obj",
+        "name": "motorz",
+        "loader": "obj",
+        "position": { "x": 0, "y": 41.5, "z": 123 },
+        "rotation": { "x": 90, "y": 0, "z": 0},
+        "material": {
+          "path": "cncmodel2/Motor.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/Gomas.obj",
+        "name": "gomas",
+        "loader": "obj",
+        "material": {
+          "path": "cncmodel2/Gomas.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/Frame.obj",
+        "name": "frame",
+        "loader": "obj",
+        "material": {
+          "path": "cncmodel2/Frame.mtl"
         }
       }
     ]

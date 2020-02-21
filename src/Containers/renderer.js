@@ -12,7 +12,7 @@ export default class HomePage extends Component {
   constructor(props) {
     super(props);
     
-    this.cncModel = new CNCModel('cncmodel2');
+    this.cncModel = new CNCModel('cncmodel1');
     this.scene = null;
     this.camera = null;
     this.renderer = null;
@@ -33,9 +33,9 @@ export default class HomePage extends Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.sceneSetup();
-    this.addCustomSceneObjects();
+    await this.addCustomSceneObjects();
     this.startAnimationLoop();
     window.addEventListener("resize", this.handleWindowResize);
     window.addEventListener('deviceorientation', (e) => {
@@ -105,7 +105,7 @@ export default class HomePage extends Component {
    * this function add to the scene the custom objects
    * like light, cnc model, etc..
    */
-  addCustomSceneObjects = () => {
+  addCustomSceneObjects = async () => {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.21);
     ambientLight.position.set(0, 0, -100);
     this.scene.add(ambientLight);
@@ -151,7 +151,8 @@ export default class HomePage extends Component {
     ground.receiveShadow = true;
     this.scene.add(ground);
 
-    this.scene.add(this.cncModel.getCNCModel());
+    this.scene.add(await this.cncModel.getCNCModel());
+    return true;
   };
 
   startAnimationLoop = () => {
