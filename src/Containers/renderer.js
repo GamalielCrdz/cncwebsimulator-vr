@@ -12,7 +12,7 @@ export default class HomePage extends Component {
   constructor(props) {
     super(props);
     
-    this.cncModel = new CNCModel('cncmodel1');
+    this.cncModel = new CNCModel('cncmodel2');
     this.scene = null;
     this.camera = null;
     this.renderer = null;
@@ -41,8 +41,6 @@ export default class HomePage extends Component {
     window.addEventListener('deviceorientation', (e) => {
       var alphaRotation = e.alpha ? e.alpha * (Math.PI / 180) : 0;
       this.scene.rotation.y = -alphaRotation;
-      // this.cncModel.rotation.y = -alphaRotation;
-      // this.currentgcodeObject && (this.currentgcodeObject.rotation.z = -alphaRotation)
     });
   }
 
@@ -72,8 +70,7 @@ export default class HomePage extends Component {
 
     //
     this.camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 10000);
-    this.camera.position.set(0, 200, 300);
-
+    this.camera.position.set(0, 260, 400);
     // if (this.props.isMobile) {
       // this.controls = new DeviceOrientationControls(this.camera);
     // } else {
@@ -84,11 +81,13 @@ export default class HomePage extends Component {
       );
       //    this.controls. = -1;
       this.controls.enableKeys = true;
-      this.controls.maxDistance = 2000;
-      this.controls.minDistance = 2;
+      // this.controls.panSpeed = -1;
+      // this.controls.autoRotateSpeed = -1;
+      //this.controls.maxDistance = 2000;
+      //this.controls.minDistance = 2;
       // this.controls.maxAzimuthAngle = Math.PI/2;
       // this.controls.minAzimuthAngle = -Math.PI/2;
-      this.controls.maxPolarAngle = Math.PI/2
+      //this.controls.maxPolarAngle = Math.PI/2
       // this.controls.autoRotate = true;
     // }
 
@@ -114,7 +113,7 @@ export default class HomePage extends Component {
     hemiLight.position.set(0, 200, 0);
     this.scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
     dirLight.color.setHSL(0.1, 1, 0.95);
     dirLight.position.set(0, 7, 7);
     dirLight.position.multiplyScalar(30);
@@ -145,13 +144,14 @@ export default class HomePage extends Component {
         side: THREE.DoubleSide
       })
     );
-    ground.position.y = -83;
-
-    ground.rotateOnAxis(new THREE.Vector3(1, 0, 0).normalize(), -Math.PI / 2);
+    ground.rotateX(THREE.Math.degToRad(90))
     ground.receiveShadow = true;
     this.scene.add(ground);
 
-    this.scene.add(await this.cncModel.getCNCModel());
+    const modelo = await this.cncModel.getCNCModel();
+    modelo.rotateX(THREE.Math.degToRad(-90));
+    modelo.position.y = 82.8;
+    this.scene.add(modelo);
     return true;
   };
 
@@ -260,10 +260,10 @@ export default class HomePage extends Component {
 
     this.currentgcodeObject = this.gCodeRenderer.render(gm);
     this.currentgcodeObject.scale.set(0.5, 0.5, 0.5);
-    this.currentgcodeObject.rotateOnAxis(
+   /*  this.currentgcodeObject.rotateOnAxis(
       new THREE.Vector3(1, 0, 0).normalize(),
       -Math.PI / 2
-    );
+    ); */
     this.currentgcodeObject.name = "currentgcodeObject";
     this.scene.add(this.currentgcodeObject);
   };

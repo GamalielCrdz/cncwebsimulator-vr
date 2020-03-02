@@ -27,16 +27,15 @@ class CNCModel {
   };
 
   setCNCPosition = ({ x, y, z }) => {
-    this.xAxis.position.x = x;
-    this.zAxis.position.x = x;
-    this.body.position.x = x;
-    this.nut.position.x = x;
-
-    this.zAxis.position.y = y;
-    this.body.position.y = y;
-    this.nut.position.y = y;
-
-    this.yAxis.position.z = z;
+    this.xAxisMotions.forEach(object => {
+      object.position.x = x
+    });
+    this.yAxisMotions.forEach(object => {
+      object.position.y = y
+    });
+    this.zAxisMotions.forEach(object => {
+      object.position.z = z
+    });
   };
 
   setInitialPosition = () => {
@@ -107,6 +106,19 @@ class CNCModel {
           mtlLoader.load(
             modelsPath("./" + modelObject.material.path),
             material => {
+              // all this is for load the images with textures
+              if (modelObject.material) {
+                for (const matName in material.materialsInfo) {
+                  for (const property in material.materialsInfo[matName]) {
+                    if (property === 'map_kd') {
+                      const newPath = modelsPath(`./${this.model.name}/${material.materialsInfo[matName][property]}`).split('/').pop();
+                      material.materialsInfo[matName][property] = newPath;
+                      material.createMaterial_(matName)
+                    }
+                  }
+                }
+              }
+
               material.preload();
               const objLoader = new OBJLoader();
               objLoader.setMaterials(material);

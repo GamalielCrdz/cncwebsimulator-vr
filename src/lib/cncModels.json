@@ -240,8 +240,36 @@
       },
       {
         "path": "cncmodel2/Gomas.obj",
-        "name": "gomas",
+        "name": "gomas_1",
         "loader": "obj",
+        "position": { "x": -115, "y": -79.51, "z": -70},
+        "material": {
+          "path": "cncmodel2/Gomas.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/Gomas.obj",
+        "name": "gomas_2",
+        "loader": "obj",
+        "position": { "x": -115, "y": 150.49, "z": -70},
+        "material": {
+          "path": "cncmodel2/Gomas.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/Gomas.obj",
+        "name": "gomas_3",
+        "loader": "obj",
+        "position": { "x": 115, "y": 150.49, "z": -70},
+        "material": {
+          "path": "cncmodel2/Gomas.mtl"
+        }
+      },
+      {
+        "path": "cncmodel2/Gomas.obj",
+        "name": "gomas_4",
+        "loader": "obj",
+        "position": { "x": 115, "y": -79.51, "z": -70},
         "material": {
           "path": "cncmodel2/Gomas.mtl"
         }
