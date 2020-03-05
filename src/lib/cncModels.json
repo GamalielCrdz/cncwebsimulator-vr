@@ -38,15 +38,10 @@
         "loader": "3mf",
         "motions": [
           {
-            "axis": "z",
-            "type": "lineal"
+            "axis": "y",
+            "type": "lneal"
           }
         ],
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 35
-        },
         "material": {
           "color": "#e8e0e0",
           "roughness": 0.53,
@@ -71,7 +66,7 @@
         ],
         "position": {
           "x": 0,
-          "y": -35,
+          "y": 0,
           "z": 0
         },
         "material": {
@@ -99,7 +94,7 @@
         "position": {
           "x": 0,
           "y": -35,
-          "z": 35
+          "z": 0
         },
         "material": {
           "color": "#e8e0e0",
@@ -115,14 +110,14 @@
         "loader": "3mf",
         "motions": [
           {
-            "axis": "y",
+            "axis": "z",
             "type": "lineal"
           }
         ],
         "position": {
           "x": 0,
           "y": -35,
-          "z": 35
+          "z": 0
         },
         "material": {
           "color": "#e8e0e0",
@@ -165,6 +160,12 @@
         "path": "cncmodel2/Toolholder.obj",
         "name": "toolholder",
         "loader": "obj",
+        "motions": [
+          {
+            "axis": "y",
+            "type": "lineal"
+          }
+        ],
         "material": {
           "path": "cncmodel2/Toolholder.mtl"
         }
@@ -181,6 +182,12 @@
         "path": "cncmodel2/Profile2080.obj",
         "name": "profile",
         "loader": "obj",
+        "motions": [
+          {
+            "axis": "z",
+            "type": "lineal"
+          }
+        ],
         "material": {
           "path": "cncmodel2/Profile2080.mtl"
         }
@@ -189,6 +196,12 @@
         "path": "cncmodel2/PlacasY.obj",
         "name": "placa_y",
         "loader": "obj",
+        "motions": [
+          {
+            "axis": "z",
+            "type": "lineal"
+          }
+        ],
         "material": {
           "path": "cncmodel2/PlacasY.mtl"
         }
@@ -197,6 +210,12 @@
         "path": "cncmodel2/Nut.obj",
         "name": "nut",
         "loader": "obj",
+        "motions": [
+          {
+            "axis": "z",
+            "type": "lineal"
+          }
+        ],
         "material": {
           "path": "cncmodel2/Nut.mtl"
         }

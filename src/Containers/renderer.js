@@ -12,7 +12,7 @@ export default class HomePage extends Component {
   constructor(props) {
     super(props);
     
-    this.cncModel = new CNCModel('cncmodel2');
+    this.cncModel = new CNCModel('cncmodel1');
     this.scene = null;
     this.camera = null;
     this.renderer = null;
@@ -260,10 +260,10 @@ export default class HomePage extends Component {
 
     this.currentgcodeObject = this.gCodeRenderer.render(gm);
     this.currentgcodeObject.scale.set(0.5, 0.5, 0.5);
-   /*  this.currentgcodeObject.rotateOnAxis(
+    this.currentgcodeObject.rotateOnAxis(
       new THREE.Vector3(1, 0, 0).normalize(),
       -Math.PI / 2
-    ); */
+    );
     this.currentgcodeObject.name = "currentgcodeObject";
     this.scene.add(this.currentgcodeObject);
   };
