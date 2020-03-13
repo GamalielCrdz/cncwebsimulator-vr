@@ -6,7 +6,7 @@ import CNCMODELS from "../lib/cncModels.json";
 const modelsPath = require.context("../assets/models", true);
 
 class CNCModel {
-  constructor(modelName = "cncmodel1") {
+  constructor(modelName = "cncmodel") {
     this.model = CNCMODELS.find(model => model.name === modelName);
     this.body = null;
     this.xAxisMotions = [];

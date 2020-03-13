@@ -1,9 +1,9 @@
 import styled from "styled-components";
 
 const editorWrapper = styled.div`
-  height: 100%;
   display: flex;
   flex-flow: row nowrap;
+  max-width: 350px;
 
   .editor-container {
     margin-left: -350px;
@@ -13,16 +13,17 @@ const editorWrapper = styled.div`
       margin: 0px;
     }
     .editor-area {
-      height: calc(100% - 50px)!important;
+      height: calc(100% - 40px)!important;
       width: 350px!important;
     }
     .editor-actions {
       display: flex;
       flex-flow: row nowrap;
       justify-content: space-evenly;
+      align-items: center;
       width: 100%;
-      background-color: rgba(33, 91, 51, 0.8);
-      height: 50px;
+      background-color: rgb(14, 40, 43);
+      height: 40px;
       padding: 9px;
     }
   }

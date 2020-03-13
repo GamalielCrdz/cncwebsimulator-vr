@@ -20,8 +20,8 @@
         "loader": "3mf",
         "motions": [
           {
-            "axis": "x",
-            "type": "lineal"
+            "axis" :"x",
+            "type" :"lineal"
           }
         ],
         "material": {
@@ -38,8 +38,8 @@
         "loader": "3mf",
         "motions": [
           {
-            "axis": "y",
-            "type": "lneal"
+            "axis" :"y",
+            "type" :"lineal"
           }
         ],
         "material": {
@@ -54,21 +54,21 @@
         "path": "cncmodel1/EjeZ.3mf",
         "name": "zAxis",
         "loader": "3mf",
-        "motions": [
-          {
-            "axis": "x",
-            "type": "lineal"
-          },
-          {
-            "axis": "y",
-            "type": "lineal"
-          }
-        ],
         "position": {
           "x": 0,
           "y": 0,
           "z": 0
         },
+        "motions": [
+          {
+            "axis" :"x",
+            "type" :"lineal"
+          },
+          {
+            "axis" :"z",
+            "type" :"lineal"
+          }
+        ],
         "material": {
           "color": "#e8e0e0",
           "roughness": 0.53,
@@ -81,21 +81,21 @@
         "path": "cncmodel1/Body.3mf",
         "name": "body",
         "loader": "3mf",
-        "motions": [
-          {
-            "axis": "x",
-            "type": "lineal"
-          },
-          {
-            "axis": "y",
-            "type": "lineal"
-          }
-        ],
         "position": {
           "x": 0,
           "y": -35,
           "z": 0
         },
+        "motions": [
+          {
+            "axis" :"x",
+            "type" :"lineal"
+          },
+          {
+            "axis" :"z",
+            "type" :"lineal"
+          }
+        ],
         "material": {
           "color": "#e8e0e0",
           "roughness": 0.53,
@@ -108,17 +108,21 @@
         "path": "cncmodel1/Nut.3mf",
         "name": "nut",
         "loader": "3mf",
-        "motions": [
-          {
-            "axis": "z",
-            "type": "lineal"
-          }
-        ],
         "position": {
           "x": 0,
           "y": -35,
           "z": 0
         },
+        "motions": [
+          {
+            "axis" :"x",
+            "type" :"lineal"
+          },
+          {
+            "axis" :"z",
+            "type" :"lineal"
+          }
+        ],
         "material": {
           "color": "#e8e0e0",
           "roughness": 0.53,
@@ -152,6 +156,12 @@
         "path": "cncmodel2/ZCorredera.obj",
         "name": "zAxis",
         "loader": "obj",
+        "motions": [
+          {
+            "axis" :"x",
+            "type" :"lineal"
+          }
+        ],
         "material": {
           "path": "cncmodel2/ZCorredera.mtl"
         }
@@ -162,8 +172,12 @@
         "loader": "obj",
         "motions": [
           {
-            "axis": "y",
-            "type": "lineal"
+            "axis" :"x",
+            "type" :"lineal"
+          },
+          {
+            "axis" :"z",
+            "type" :"lineal"
           }
         ],
         "material": {
@@ -174,6 +188,16 @@
         "path": "cncmodel2/SoporteMotor.obj",
         "name": "soporte_motor",
         "loader": "obj",
+        "motions": [
+          {
+            "axis" :"x",
+            "type" :"lineal"
+          },
+          {
+            "axis" :"z",
+            "type" :"lineal"
+          }
+        ],
         "material": {
           "path": "cncmodel2/SoporteMotor.mtl"
         }
@@ -184,7 +208,7 @@
         "loader": "obj",
         "motions": [
           {
-            "axis": "z",
+            "axis": "y",
             "type": "lineal"
           }
         ],
@@ -198,7 +222,7 @@
         "loader": "obj",
         "motions": [
           {
-            "axis": "z",
+            "axis": "y",
             "type": "lineal"
           }
         ],
@@ -212,8 +236,12 @@
         "loader": "obj",
         "motions": [
           {
-            "axis": "z",
-            "type": "lineal"
+            "axis" :"x",
+            "type" :"lineal"
+          },
+          {
+            "axis" :"z",
+            "type" :"lineal"
           }
         ],
         "material": {
@@ -224,6 +252,16 @@
         "path": "cncmodel2/MotorDC.obj",
         "name": "motor_dc",
         "loader": "obj",
+        "motions": [
+          {
+            "axis" :"x",
+            "type" :"lineal"
+          },
+          {
+            "axis" :"z",
+            "type" :"lineal"
+          }
+        ],
         "material": {
           "path": "cncmodel2/MotorDC.mtl"
         }
@@ -253,6 +291,12 @@
         "loader": "obj",
         "position": { "x": 0, "y": 41.5, "z": 123 },
         "rotation": { "x": 90, "y": 0, "z": 0},
+        "motions": [
+          {
+            "axis" :"x",
+            "type" :"lineal"
+          }
+        ],
         "material": {
           "path": "cncmodel2/Motor.mtl"
         }

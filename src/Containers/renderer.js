@@ -7,12 +7,15 @@ import Controls from "./controls";
 import Editor from "./editor";
 import { notification } from "antd";
 import { CNCModel } from "../lib/cncModel";
+var Stats = require("stats-js");
+var MemoryStats = require("memory-stats");
 
 export default class HomePage extends Component {
   constructor(props) {
     super(props);
-    
-    this.cncModel = new CNCModel('cncmodel1');
+    this.memPanel = new MemoryStats();
+    this.fpsPanel = new Stats();
+    this.cncModel = new CNCModel("cncmodel1");
     this.scene = null;
     this.camera = null;
     this.renderer = null;
@@ -29,7 +32,9 @@ export default class HomePage extends Component {
     this.state = {
       index: 0,
       editorValue: "",
-      currentLine: 0
+      currentLine: 0,
+      height: window.innerHeight,
+      activeVr: false
     };
   }
 
@@ -38,8 +43,8 @@ export default class HomePage extends Component {
     await this.addCustomSceneObjects();
     this.startAnimationLoop();
     window.addEventListener("resize", this.handleWindowResize);
-    window.addEventListener('deviceorientation', (e) => {
-      var alphaRotation = e.alpha ? e.alpha * (Math.PI / 180) : 0;
+    window.addEventListener("deviceorientation", e => {
+      const alphaRotation = e.alpha ? e.alpha * (Math.PI / 180) : 0;
       this.scene.rotation.y = -alphaRotation;
     });
   }
@@ -59,7 +64,6 @@ export default class HomePage extends Component {
     const width = this.renderElement.current.clientWidth;
     const height = this.renderElement.current.clientHeight;
 
-
     // set the renderer propierties
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.gammaFactor = 1;
@@ -70,25 +74,23 @@ export default class HomePage extends Component {
 
     //
     this.camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 10000);
+	  this.camera.lookAt(0, 0, 0);
     this.camera.position.set(0, 260, 400);
     // if (this.props.isMobile) {
-      // this.controls = new DeviceOrientationControls(this.camera);
+    // this.controls = new DeviceOrientationControls(this.camera);
     // } else {
-      // OrbitControls allow a camera to orbit around the object
-      this.controls = new OrbitControls(
-        this.camera,
-        this.renderElement.current
-      );
-      //    this.controls. = -1;
-      this.controls.enableKeys = true;
-      // this.controls.panSpeed = -1;
-      // this.controls.autoRotateSpeed = -1;
-      //this.controls.maxDistance = 2000;
-      //this.controls.minDistance = 2;
-      // this.controls.maxAzimuthAngle = Math.PI/2;
-      // this.controls.minAzimuthAngle = -Math.PI/2;
-      //this.controls.maxPolarAngle = Math.PI/2
-      // this.controls.autoRotate = true;
+    // OrbitControls allow a camera to orbit around the object
+    this.controls = new OrbitControls(this.camera, this.renderElement.current);
+    //    this.controls. = -1;
+    this.controls.enableKeys = true;
+    // this.controls.panSpeed = -1;
+    // this.controls.autoRotateSpeed = -1;
+    //this.controls.maxDistance = 2000;
+    //this.controls.minDistance = 2;
+    // this.controls.maxAzimuthAngle = Math.PI/2;
+    // this.controls.minAzimuthAngle = -Math.PI/2;
+    //this.controls.maxPolarAngle = Math.PI/2
+    // this.controls.autoRotate = true;
     // }
 
     // for vr effect
@@ -97,7 +99,7 @@ export default class HomePage extends Component {
 
     this.renderElement.current.appendChild(this.renderer.domElement); // mount using React ref
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color('#170d2f');
+    this.scene.background = new THREE.Color("#170d2f");
   };
 
   /**
@@ -144,14 +146,28 @@ export default class HomePage extends Component {
         side: THREE.DoubleSide
       })
     );
-    ground.rotateX(THREE.Math.degToRad(90))
+    ground.rotateX(THREE.Math.degToRad(90));
     ground.receiveShadow = true;
     this.scene.add(ground);
 
     const modelo = await this.cncModel.getCNCModel();
-    modelo.rotateX(THREE.Math.degToRad(-90));
+    modelo.rotateOnAxis(
+      new THREE.Vector3(1, 0, 0).normalize(),
+      -Math.PI / 2
+    );
     modelo.position.y = 82.8;
     this.scene.add(modelo);
+
+    this.fpsPanel.domElement.style.cssText =
+      "position:absolute; top:0px; left:200px; float:left; display:block";
+    this.fpsPanel.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custo
+
+    this.memPanel.domElement.style.position = "absolute";
+    this.memPanel.domElement.style.top = "0px";
+    this.memPanel.domElement.style.left = "90px";
+    this.renderElement.current.appendChild(this.memPanel.domElement);
+    this.renderElement.current.appendChild(this.fpsPanel.dom);
+
     return true;
   };
 
@@ -182,8 +198,8 @@ export default class HomePage extends Component {
 
         this.handleCNCModelMotion({
           x: lastVertice.x,
-          y: lastVertice.z,
-          z: lastVertice.y
+          y: lastVertice.y,
+          z: lastVertice.z,
         });
         this.setState({
           currentLine:
@@ -195,11 +211,15 @@ export default class HomePage extends Component {
         });
       }
     }
+    this.memPanel.update();
 
     this.controls.update();
-    this.props.isMobile
+		this.fpsPanel.begin();
+
+    this.state.activeVr
       ? this.effect.render(this.scene, this.camera)
       : this.renderer.render(this.scene, this.camera);
+      this.fpsPanel.end();
 
     // The window.requestAnimationFrame() method tells the browser that you wish to perform
     // an animation and requests that the browser call a specified function
@@ -208,12 +228,14 @@ export default class HomePage extends Component {
   };
 
   handleCNCModelMotion = ({ x, y, z }) => {
+    console.log({ x, y, z });
+    
     // if (this.xAxis && this.zAxis && this.body && this.nut) {
-      this.cncModel.setCNCPosition({x,y,z})
+    this.cncModel.setCNCPosition({ x, y, z});
 
-      // this.yAxis.position.z = this.targetPoint.z;
+    // this.yAxis.position.z = this.targetPoint.z;
 
-      this.currentgcodeObject.position.z = this.targetPoint.z;
+    this.currentgcodeObject.position.z = this.targetPoint.z;
     // }
 
     this.targetPoint.x = x * 0.5;
@@ -236,13 +258,17 @@ export default class HomePage extends Component {
    * This function is called every time that
    * the screen change of dimensions
    */
-  handleWindowResize = (toggle = true) => {
-    const width = toggle ? window.innerWidth : window.innerWidth - 350;
-    const height = window.innerHeight - this.props.navbarHeigth ;
+  handleWindowResize = () => {
+    const width = this.props.toggle
+      ? window.innerWidth - 350
+      : window.innerWidth;
+    const height = window.innerHeight - this.props.navbarHeigth;
+    console.log(height);
+
+    this.setState({ height });
 
     this.renderer.setSize(width, height);
     this.camera.aspect = width / height;
-
     // Note that after making changes to most of camera properties you have to call
     // .updateProjectionMatrix for the changes to take effect.
     this.camera.updateProjectionMatrix();
@@ -260,6 +286,7 @@ export default class HomePage extends Component {
 
     this.currentgcodeObject = this.gCodeRenderer.render(gm);
     this.currentgcodeObject.scale.set(0.5, 0.5, 0.5);
+    this.currentgcodeObject.position.y = 85
     this.currentgcodeObject.rotateOnAxis(
       new THREE.Vector3(1, 0, 0).normalize(),
       -Math.PI / 2
@@ -268,37 +295,17 @@ export default class HomePage extends Component {
     this.scene.add(this.currentgcodeObject);
   };
 
-  
-  handlePlay = play => {
-    // this.toggleFullScreen()
-    if (play) {
-      if (!this.pause) {
-        this.pause = true;
-      } else {
-        const gcode = this.state.editorValue;
-        if (gcode && gcode.length > 0) {
-          this.onLoadGCode(gcode);
-        } else {
-          notification["info"]({
-            message: "No hay codigo",
-            description: "No hay gcode"
-          });
-        }
-      }
+  handlePlay = gcode => {
+    if (gcode && gcode.length > 0) {
+      this.onLoadGCode(gcode);
     } else {
-      this.pause = false;
-    }
-  };
-
-  toggleFullScreen = () => {
-    if (!document.fullscreenElement) {
-        this.renderElement.current.requestFullscreen();
-    } else {
-      if (document.exitFullscreen) {
-        this.renderElement.current.exitFullscreen(); 
-      }
+      notification["info"]({
+        message: "No hay codigo",
+        description: "No hay gcode"
+      });
     }
   }
+
   handleSlider = percent => {
     if (this.gCodeRenderer && this.gCodeRenderer.viewModels.length) {
       const index = Math.floor(
@@ -319,107 +326,16 @@ export default class HomePage extends Component {
     this.setState({ editorValue: value });
   };
 
-  handleEditorActions = action => {
-    switch (action) {
-      case "file-add":
-        this.setEditorValue(
-          "%\nG21 G90 G40 G98\nG54\nT01\nS1200 M03\n\n\nM5\nM30\n\n"
-        );
-        break;
-      case "upload":
-        this.inputFile.current.click();
-        break;
-      case "download":
-        const textFileAsBlob = new Blob([this.state.editorValue], {
-          encoding: "UTF-8",
-          type: "text/plain;charset=UTF-8"
-        });
-        const downloadLink = document.createElement("a");
-        downloadLink.download = "gcode.txt";
-        downloadLink.innerHTML = "Download File";
-        if (window.webkitURL != null) {
-          downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-        } else {
-          downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
-        }
-        downloadLink.style.display = "none";
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        break;
-      case "delete":
-        this.setState({ editorValue: "", sliderValue: 0 }, () => {
-          this.setCNCModelInitialPosition();
-          this.gCodeRenderer = null;
-          this.scene.remove(this.currentgcodeObject);
-          this.currentgcodeObject = null;
-          this.targetPoint = new THREE.Vector3(0, 0, 0);
-          this.pause = true;
-        });
-        break;
-
-      default:
-        break;
-    }
+  requestVR = () => {
+    this.setState({ activeVr: !this.state.activeVr });
   };
 
-  onGFileUpload = (event) =>{
-    let files = event.target.files[0];
-    let verifyGcode = event.target.files[0].name.split(".");
-    let verifyAndShow = verifyGcode[verifyGcode.length - 1];
-
-    // if (verifyAndShow === "gcode") {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const gcode = reader.result;
-        this.setState({ editorValue: gcode  });
-        this.onLoadGCode(gcode);
-      };
-
-      reader.readAsText(files);
-    // } else {
-      // document.getElementById("modal").style.display = "block";
-    // }
-  }
-
   render() {
-    const { navbarHeigth } = this.props;
+    const { navbarHeigth, style } = this.props;
+    const { height } = this.state;
+
     return (
-      <div style={{ width: "100%", overflow: "hidden" }}>
-        <input
-          accept=".gcode"
-          ref={this.inputFile}
-          type="file"
-          style={{ display: "none" }}
-          onChange={this.onGFileUpload}
-        />
-        <div style={{ display: "flex", height: '100%' }}>
-          <Editor
-            setEditorValue={this.setEditorValue}
-            editorValue={this.state.editorValue}
-            currentLine={this.state.currentLine}
-            onToggle={this.handleWindowResize}
-            editorAction={this.handleEditorActions}
-            navbarHeigth={this.props.navbarHeigth}
-          />
-          <div style={{ position: "relative", width: "100%", height: 'fit-content' }}>
-            <div
-              style={{
-                height: window.innerHeight - navbarHeigth,
-                width: "100%",
-                minWidth: 350
-              }}
-              ref={this.renderElement}
-            />
-            <Controls
-              sliderValue={this.state.sliderValue}
-              onPlay={this.handlePlay}
-              onChangeSlider={this.handleSlider}
-            />
-          </div>
-        </div>
-      </div>
+      <div style={{ ...style, height: height }} ref={this.renderElement} />
     );
   }
 }

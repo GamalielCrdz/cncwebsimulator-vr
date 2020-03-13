@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Button, Slider } from "antd";
+import { Button, Slider, Tooltip } from "antd";
+import vrIcon from '../assets/images/vr.svg'
 
 const Container = styled.div`
   height: 60px;
-  width: 210px;
-  background-color: rgba(33, 91, 51, 0.56);
+  width: calc(100% - 10px);
+  background-color: rgba(0, 0, 0, 0.56);
   position: absolute;
-  bottom: 10px;
+  bottom: 5px;
   left: 0;
   right: 0;
   margin: auto;
-  margin-left: 350;
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
@@ -23,22 +23,38 @@ export default props => {
   return (
     <Container>
       <Slider
-        style={{ width: "100%", maxWidth: "190px", margin: 0 }}
+        style={{ width: "100%", maxWidth: "calc(100% - 30px)", margin: 0 }}
         min={0}
         max={100}
         defaultValue={0}
         value={props.sliderValue}
         onChange={props.onChangeSlider}
       />
+      <div style={{ width: 'calc(100% - 30px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} >
+
+      <Tooltip title={'vr'} >
+      <Button style={{ width: '32px', height: '32px', padding: '0px' }} onClick={props.handleVR} >
+        <img src={vrIcon} alt='vr' width={22} height={26}/>
+      </Button>
+      </Tooltip>
+
       <Button
         icon={play ? "play-circle" : "pause-circle"}
         size="large"
         shape="circle"
         onClick={() => {
           setPlay(!play);
-          props.onPlay(play);
+          props.handleOnPlayGcode(play);
         }}
       />
+
+      <Tooltip title={'fullscreen'} >
+        <Button
+          icon={'fullscreen'}
+          onClick={props.handleFullScreen}
+        />
+      </Tooltip>
+      </div>
     </Container>
   );
 };
